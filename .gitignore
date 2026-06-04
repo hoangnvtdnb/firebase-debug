@@ -1,0 +1,30 @@
+# ───── Android platform-tools (adb) — KHÔNG commit (tải riêng, ~30MB) ─────
+# Xem README mục "Cài đặt adb". Bỏ comment dòng dưới nếu muốn bundle adb vào repo.
+# linux/adb/
+# windows/adb/
+
+# ───── Dữ liệu runtime / kết quả sinh ra khi chạy capture ─────
+fa_logging_stream.jsonl
+fa_logging_results_adb.html
+fa_logging_results_adb.txt
+*_test_export.html
+
+# Cấu hình bundle tracking sinh ra lúc chạy
+fa_bundle_track.json
+
+# File tạm khi ghi atomic (*.tmp) của filter config
+*.tmp
+
+# ───── Python ─────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ───── Hệ điều hành / editor ─────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

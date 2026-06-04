@@ -1,0 +1,51 @@
+# Firebase FA debug — Linux (luồng đã test)
+
+## 1. Chuẩn bị (một lần)
+
+sudo apt install -y python3 dos2unix   # python3 bắt buộc cho capture + viewer
+dos2unix capture_fa_logging.sh start_fa_viewer.sh 2>/dev/null || true
+chmod +x capture_fa_logging.sh start_fa_viewer.sh fa_capture_engine.py adb/adb
+
+## 2. Chạy capture + viewer (giống Windows)
+
+./capture_fa_logging.sh
+# Tùy chọn: ./capture_fa_logging.sh --no-viewer
+#            ./capture_fa_logging.sh --no-browser
+#            ./capture_fa_logging.sh --viewer-port 9000
+# Chỉ viewer: ./start_fa_viewer.sh
+# Browser: http://127.0.0.1:8765/
+
+---
+
+## Nếu lỗi permissions for device
+
+### 3. Chạy lsusb lấy ID device
+
+lsusb
+# Ví dụ: Bus 001 Device 007: ID 22d9:2769 OPPO Electronics Corp. RMX5060
+#        → idVendor = 22d9 (thay 22d9 bằng ID máy bạn)
+
+### 4. Mở file 51-android.rules và thêm rule
+
+sudo nano /etc/udev/rules.d/51-android.rules
+
+# Thêm dòng (đổi 22d9 cho đúng idVendor):
+SUBSYSTEM=="usb", ATTR{idVendor}=="22d9", MODE="0666", GROUP="plugdev"
+
+### 5. Set rule
+
+sudo chmod a+r /etc/udev/rules.d/51-android.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+sudo service udev restart
+
+### 6. Tháo USB ra cắm lại, rồi kiểm tra devices
+
+./adb/adb kill-server
+./adb/adb start-server
+./adb/adb devices
+
+# Phải thấy: <serial>    device
+
+# Sau đó chạy lại:
+./capture_fa_logging.sh

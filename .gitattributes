@@ -1,0 +1,18 @@
+# Chuẩn hóa line-ending theo nền tảng để script chạy đúng trên cả Windows lẫn Linux.
+* text=auto eol=lf
+
+# Script PowerShell + batch giữ CRLF (Windows).
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Bash script bắt buộc LF.
+*.sh text eol=lf
+
+# File nhị phân — không đụng vào.
+*.dll binary
+*.so binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.ico binary
