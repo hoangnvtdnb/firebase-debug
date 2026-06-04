@@ -1,0 +1,1 @@
+ad_query,ad_impression,exposure,user_engagement,screen_view,ad_click

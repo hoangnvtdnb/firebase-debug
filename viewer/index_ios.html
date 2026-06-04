@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Firebase Analytics — Debug View (iOS)</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <div class="filters-header filters-collapsed rules-collapsed" id="filtersHeader">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot" id="statusDot"></span>
+        <h1>FA Debug View</h1>
+        <span class="brand-sub">iOS device log</span>
+      </div>
+      <div class="topbar-toolbar">
+        <button
+          type="button"
+          id="toggleFiltersBtn"
+          class="btn btn-filter-toggle btn-sm"
+          aria-controls="filtersBody"
+          aria-expanded="false"
+        >
+          Hiện bộ lọc
+        </button>
+        <button type="button" id="pauseBtn" class="btn">Tạm dừng</button>
+        <button type="button" id="clearBtn" class="btn btn-clear">CLEAR</button>
+      </div>
+    </header>
+
+    <div id="filtersBody" class="filters-body">
+      <section class="filter-quick" aria-label="Lọc nhanh trên timeline">
+        <div class="filter-quick-bar">
+          <div class="filter-quick-main">
+            <div class="filter-quick-datetime">
+              <label class="filter-quick-label" for="filterDatetime">Datetime</label>
+              <input
+                type="search"
+                id="filterDatetime"
+                class="filter-search-input filter-search-input-datetime"
+                placeholder="00-00 00:00:00"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Lọc theo thời gian (chuỗi con trong timestamp)"
+              />
+            </div>
+
+            <div class="filter-quick-display" role="group" aria-label="Loại mục hiển thị">
+              <div class="filter-display-heading">Hiển thị</div>
+              <div class="filter-display-rows">
+                <div class="filter-display-row" id="filterEventRow">
+                  <label class="toggle-pill toggle-pill-event">
+                    <input type="checkbox" id="showEvents" checked />
+                    <span>Events</span>
+                  </label>
+                  <input
+                    type="search"
+                    id="filterEvent"
+                    class="filter-search-input filter-search-input-event filter-search-input-fixed"
+                    placeholder="Event, param…"
+                    autocomplete="off"
+                    aria-label="Lọc events"
+                  />
+                </div>
+                <div class="filter-display-row" id="filterPropRow">
+                  <label class="toggle-pill toggle-pill-prop">
+                    <input type="checkbox" id="showProps" checked />
+                    <span>Properties</span>
+                  </label>
+                  <input
+                    type="search"
+                    id="filterProperty"
+                    class="filter-search-input filter-search-input-prop filter-search-input-fixed"
+                    placeholder="Property, value…"
+                    autocomplete="off"
+                    aria-label="Lọc user properties"
+                  />
+                </div>
+                <div class="filter-display-row" id="filterBundleRow">
+                  <label class="toggle-pill toggle-pill-muted">
+                    <input type="checkbox" id="showBundle" checked />
+                    <span>Bundle</span>
+                  </label>
+                  <input
+                    type="search"
+                    id="filterBundle"
+                    class="filter-search-input filter-search-input-bundle filter-search-input-fixed"
+                    placeholder="Bundle id…"
+                    autocomplete="off"
+                    aria-label="Lọc bundle id"
+                  />
+                </div>
+                <div class="filter-display-row filter-display-row-values" id="filterValuesRow">
+                  <label class="toggle-pill toggle-pill-values">
+                    <input type="checkbox" id="showValues" checked />
+                    <span>Values</span>
+                  </label>
+                  <div class="filter-display-values-body" id="filterValuesBody">
+                    <div class="values-picker" id="paramPicker">
+                      <button
+                        type="button"
+                        id="paramPickerBtn"
+                        class="values-picker-btn"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <span class="values-picker-label" id="paramPickerLabel">Event Param</span>
+                        <span class="values-picker-caret" aria-hidden="true">▾</span>
+                      </button>
+                      <div class="values-picker-panel" id="paramPickerPanel" hidden>
+                        <input
+                          type="search"
+                          id="paramPickerSearch"
+                          class="values-picker-search"
+                          placeholder="Tìm param…"
+                          autocomplete="off"
+                          aria-label="Tìm event param"
+                        />
+                        <label class="values-check values-check-all">
+                          <input type="checkbox" id="paramSelectAll" />
+                          <span>Chọn tất cả</span>
+                        </label>
+                        <div class="values-check-list" id="paramCheckList"></div>
+                      </div>
+                    </div>
+                    <div class="values-picker" id="propPicker">
+                      <button
+                        type="button"
+                        id="propPickerBtn"
+                        class="values-picker-btn"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <span class="values-picker-label" id="propPickerLabel">Properties</span>
+                        <span class="values-picker-caret" aria-hidden="true">▾</span>
+                      </button>
+                      <div class="values-picker-panel" id="propPickerPanel" hidden>
+                        <input
+                          type="search"
+                          id="propPickerSearch"
+                          class="values-picker-search"
+                          placeholder="Tìm property…"
+                          autocomplete="off"
+                          aria-label="Tìm property"
+                        />
+                        <label class="values-check values-check-all">
+                          <input type="checkbox" id="propSelectAll" />
+                          <span>Chọn tất cả</span>
+                        </label>
+                        <div class="values-check-list" id="propCheckList"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-quick-actions">
+            <button
+              type="button"
+              id="toggleRulesBtn"
+              class="btn btn-rules-toggle btn-sm"
+              aria-controls="filterRules"
+              aria-expanded="false"
+              disabled
+            >
+              Ẩn include / exclude
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="filterRules" class="filter-rules" aria-label="Quy tắc include và exclude">
+        <div class="filter-rules-toolbar">
+          <div class="filter-rules-intro">
+            <h2 class="filter-rules-title">Quy tắc lọc</h2>
+            <p class="filter-rules-desc">Include = chỉ hiện mục khớp (trống = tất cả). Exclude = ẩn khỏi timeline. Param/property: <strong>tên</strong> hoặc <strong>tên=giá trị</strong>. <strong>Lưu</strong> ghi <code>fa_filter_config.json</code> + trình duyệt; <strong>Xuất/Nhập</strong> khi không có viewer HTTP.</p>
+          </div>
+          <div class="config-save">
+            <button type="button" id="saveConfigBtn" class="btn btn-save">Lưu</button>
+            <button type="button" id="exportConfigBtn" class="btn btn-config-secondary" title="Tải fa_filter_config.json">Xuất</button>
+            <button type="button" id="importConfigBtn" class="btn btn-config-secondary" title="Chọn fa_filter_config.json">Nhập</button>
+            <input type="file" id="importConfigInput" accept=".json,application/json" hidden />
+            <span id="configStatus" class="config-status" hidden></span>
+          </div>
+        </div>
+
+        <div class="filter-rules-grid">
+          <div class="filter-group filter-group-events">
+            <div class="filter-group-head">
+              <span class="filter-group-badge filter-group-badge-event">Events</span>
+            </div>
+            <div class="filter-cards">
+              <div class="filter-card filter-card-include config-row config-row-events">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Include</span>
+                  <span class="filter-hint">Trống = tất cả</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="includeNew" placeholder="Thêm tên event…" autocomplete="off" />
+                  <button type="button" id="includeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm event">+</button>
+                </div>
+                <div id="includeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearIncludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ include events" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="includeChips" class="chips" data-list="include"></div>
+                </div>
+              </div>
+
+              <div class="filter-card filter-card-exclude config-row config-row-events">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Exclude</span>
+                  <span class="filter-hint">Ẩn khỏi list</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="excludeNew" placeholder="Thêm tên event…" autocomplete="off" />
+                  <button type="button" id="excludeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm exclude event">+</button>
+                </div>
+                <div id="excludeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearExcludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ exclude events" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="excludeChips" class="chips" data-list="exclude"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group filter-group-event-params">
+            <div class="filter-group-head">
+              <span class="filter-group-badge filter-group-badge-eparam">Event parameters</span>
+            </div>
+            <div class="filter-cards">
+              <div class="filter-card filter-card-include config-row config-row-event-params">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Include</span>
+                  <span class="filter-hint">Hiện nếu khớp rule</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="epIncludeNew" placeholder="param hoặc param=value…" autocomplete="off" />
+                  <button type="button" id="epIncludeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm include param">+</button>
+                </div>
+                <div id="epIncludeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearEpIncludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ include event params" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="epIncludeChips" class="chips chips-eparam" data-list="include"></div>
+                </div>
+              </div>
+
+              <div class="filter-card filter-card-exclude config-row config-row-event-params">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Exclude</span>
+                  <span class="filter-hint">Ẩn nếu khớp rule</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="epExcludeNew" placeholder="param hoặc param=value…" autocomplete="off" />
+                  <button type="button" id="epExcludeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm exclude param">+</button>
+                </div>
+                <div id="epExcludeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearEpExcludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ exclude event params" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="epExcludeChips" class="chips chips-eparam" data-list="exclude"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group filter-group-props">
+            <div class="filter-group-head">
+              <span class="filter-group-badge filter-group-badge-prop">User properties</span>
+            </div>
+            <div class="filter-cards">
+              <div class="filter-card filter-card-include config-row config-row-properties">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Include</span>
+                  <span class="filter-hint">Hiện nếu khớp rule</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="propIncludeNew" placeholder="property hoặc property=value…" autocomplete="off" />
+                  <button type="button" id="propIncludeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm include property">+</button>
+                </div>
+                <div id="propIncludeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearPropIncludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ include properties" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="propIncludeChips" class="chips chips-prop" data-list="include"></div>
+                </div>
+              </div>
+
+              <div class="filter-card filter-card-exclude config-row config-row-properties">
+                <div class="filter-card-head">
+                  <span class="filter-card-title">Exclude</span>
+                  <span class="filter-hint">Ẩn nếu khớp rule</span>
+                </div>
+                <div class="chip-add">
+                  <input type="text" id="propExcludeNew" placeholder="property hoặc property=value…" autocomplete="off" />
+                  <button type="button" id="propExcludeAddBtn" class="btn btn-add" title="Thêm" aria-label="Thêm exclude property">+</button>
+                </div>
+                <div id="propExcludeChipsWrap" class="chips-wrap">
+                  <button type="button" id="clearPropExcludeBtn" class="btn-icon-trash chips-clear" hidden aria-label="Xóa toàn bộ exclude properties" title="Xóa toàn bộ">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 7h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-3h6l1 2H8l1-2zm2 4v9h2V8h-2zm3 0v9h2V8h-2zM9 8v9H7V8h2z"/></svg>
+                  </button>
+                  <div id="propExcludeChips" class="chips chips-prop" data-list="exclude"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <main class="layout" id="layout">
+    <section class="timeline" aria-label="Timeline">
+      <div class="timeline-head">
+        <div class="timeline-head-meta">
+          <span id="countLabel">0 mục</span>
+          <span id="sessionHint" class="session-hint"></span>
+        </div>
+        <div class="timeline-nav" aria-label="Chuyển chi tiết mục trước/sau">
+          <button type="button" id="timelineNavUp" class="btn-timeline-nav" title="Mục mới hơn (phím ↑)" aria-label="Mục mới hơn">↑</button>
+          <button type="button" id="timelineNavDown" class="btn-timeline-nav" title="Mục cũ hơn (phím ↓)" aria-label="Mục cũ hơn">↓</button>
+        </div>
+      </div>
+      <div class="timeline-table-hscroll">
+        <div id="timelineTableInner" class="timeline-table-inner">
+          <div id="timelineColHeader" class="timeline-col-header" role="row" aria-hidden="false"></div>
+          <div id="timelineViewport" class="timeline-viewport" tabindex="0">
+            <div id="timelineVirtualSpacer" class="timeline-virtual-spacer" aria-hidden="true"></div>
+            <ul id="timelineList" class="timeline-list"></ul>
+          </div>
+        </div>
+      </div>
+      <p id="emptyHint" class="empty-hint">Đang chờ dữ liệu… Chạy <code>linux-ios/capture_fa_logging.sh</code> với iPhone đã bật FA debug và tương tác app. Session được giữ khi F5 / mở lại viewer.</p>
+    </section>
+
+    <div
+      id="layoutSplitter"
+      class="layout-splitter"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Kéo để đổi độ rộng cột timeline"
+      tabindex="0"
+    ></div>
+
+    <aside class="detail" aria-label="Chi tiết">
+      <p id="detailPlaceholder" class="detail-placeholder">Chọn một mục trên timeline để xem chi tiết.</p>
+      <div id="detailPanel" class="detail-panel hidden">
+        <div class="detail-meta">
+          <span id="detailType" class="pill"></span>
+          <time id="detailTime"></time>
+          <span id="detailBundle" class="detail-bundle hidden"></span>
+        </div>
+        <h2 id="detailName"></h2>
+        <table id="paramsTable" class="params-table hidden">
+          <thead><tr><th>Parameter</th><th>Type</th><th>Value</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="detailValue" class="detail-value hidden"></p>
+
+        <section id="bundlePropsSection" class="bundle-props-section" aria-label="User properties theo bundle">
+          <h3 id="bundlePropsTitle" class="detail-section-title">User properties (bundle)</h3>
+          <p id="bundlePropsEmpty" class="bundle-props-empty hidden">Chưa có user property nào cho bundle này trong session.</p>
+          <table id="bundlePropsTable" class="params-table bundle-props-table hidden">
+            <thead>
+              <tr><th>Property</th><th>Type</th><th>Value</th><th>Cập nhật</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="app-credit" aria-label="Chữ ký">
+    Tool by <strong>HoangData</strong> at <strong>DMOBIN GLOBAL</strong>
+  </footer>
+
+  <script src="/value_type.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

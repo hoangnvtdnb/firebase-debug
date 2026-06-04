@@ -1,6 +1,6 @@
-# Firebase Analytics debug (ADB)
+# Firebase Analytics debug (ADB + iOS)
 
-Ghi log Firebase Analytics từ `adb logcat` (tag **FA** / **FA-SVC**), lọc event & user property, xuất file text và **viewer HTML** kiểu DebugView (timeline, chi tiết params, user properties theo bundle).
+Ghi log Firebase Analytics từ **Android** (`adb logcat`, tag **FA** / **FA-SVC**) hoặc **iOS trên Linux** (`idevicesyslog`), lọc event & user property, xuất file text và **viewer HTML** kiểu DebugView (timeline, chi tiết params, user properties theo bundle).
 
 **Tool by HoangData at DMOBIN GLOBAL**
 
@@ -14,9 +14,46 @@ Ghi log Firebase Analytics từ `adb logcat` (tag **FA** / **FA-SVC**), lọc ev
 | **Trình duyệt** | Chrome, Edge, Firefox… |
 | **Thiết bị Android** | USB debugging bật; app bật FA debug mode |
 | **ADB** | Dùng bản trong `windows/adb/` hoặc `linux/adb/` — không cần cài Android Studio |
-| **Python 3** | Chỉ bắt buộc trên **Linux** (capture engine + viewer) |
+| **Python 3** | Bắt buộc trên **Linux** (capture engine + viewer) |
+| **libimobiledevice** | Chỉ cho **Linux iOS** (`idevicesyslog`, `idevice_id`) |
 
-Không cần Node.js, npm. Windows không cần Python (viewer = PowerShell).
+Không cần Node.js, npm. Windows không cần Python (viewer Android = PowerShell). iOS capture chỉ có trên **linux-ios/**.
+
+---
+
+## Linux — iOS (idevicesyslog)
+
+Yêu cầu: **bash**, **python3**, **libimobiledevice-utils**, iPhone cắm USB (Trust + Developer Mode trên iOS 16+).
+
+### 1. Chuẩn bị
+
+```bash
+cd đường-dẫn/firebase-debug/linux-ios
+sudo apt install -y python3 libimobiledevice-utils usbmuxd
+dos2unix capture_fa_logging.sh start_fa_viewer.sh 2>/dev/null || true
+chmod +x capture_fa_logging.sh start_fa_viewer.sh fa_capture_engine_ios.py
+idevice_id -l   # phải thấy UDID
+```
+
+Trên app iOS (bản debug), bật trong Xcode scheme → **Arguments Passed On Launch**:
+
+```text
+-FIRDebugEnabled
+-FIRAnalyticsVerboseLoggingEnabled
+```
+
+### 2. Chạy capture + viewer
+
+```bash
+./capture_fa_logging.sh --bundle com.yourcompany.yourapp
+```
+
+- Viewer: **http://127.0.0.1:8766/** (cổng **8766** để không trùng Android **8765**)
+- Output: `fa_logging_results_ios.html`, `fa_logging_stream.jsonl` (thư mục `linux-ios/`)
+
+**Tùy chọn:** `--udid`, `--no-browser`, `--fresh`, `--viewer-port`, `--no-viewer` — giống Android.
+
+Chi tiết: `linux-ios/run_command.txt`.
 
 ---
 
@@ -252,22 +289,24 @@ firebase-debug/
   README.md
   .gitignore               # bỏ adb/, file runtime, __pycache__…
   .gitattributes           # chuẩn hóa line-ending (ps1=CRLF, sh=LF)
-  viewer/              # index.html, app.js, app.css, value_type.js, serve.py
+  viewer/              # index.html, index_ios.html, app.js, serve.py
   windows/
-    capture_fa_logging.ps1   # ← entry point Windows
+    capture_fa_logging.ps1   # ← entry point Windows (Android)
     fa_viewer_server.ps1
     start_fa_viewer.ps1
     adb/                     # adb.exe — TẢI RIÊNG (gitignore)
-    include_event.txt
-    exclude_event.txt
   linux/
-    capture_fa_logging.sh    # ← entry point Linux
+    capture_fa_logging.sh    # ← entry point Linux Android
     fa_capture_engine.py
     fa_bundle_track.py
     fa_html_export.py
     fa_record_store.py
     start_fa_viewer.sh
     adb/                     # adb — TẢI RIÊNG (gitignore)
+  linux-ios/
+    capture_fa_logging.sh    # ← entry point Linux iOS
+    fa_capture_engine_ios.py
+    start_fa_viewer.sh       # viewer cổng 8766
     include_event.txt
     exclude_event.txt
 ```

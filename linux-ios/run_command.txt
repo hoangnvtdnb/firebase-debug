@@ -1,0 +1,48 @@
+# Firebase FA debug — Linux iOS (idevicesyslog)
+
+## 1. Chuẩn bị (một lần)
+
+sudo apt install -y python3 libimobiledevice-utils usbmuxd
+sudo systemctl enable --now usbmuxd 2>/dev/null || true
+dos2unix capture_fa_logging.sh start_fa_viewer.sh 2>/dev/null || true
+chmod +x capture_fa_logging.sh start_fa_viewer.sh fa_capture_engine_ios.py
+
+Trên iPhone:
+  - Trust This Computer
+  - iOS 16+: Settings → Privacy & Security → Developer Mode (bật, khởi động lại)
+Trong app (bản debug):
+  - Xcode scheme → Arguments Passed On Launch:
+      -FIRDebugEnabled
+      -FIRAnalyticsVerboseLoggingEnabled
+
+## 2. Kiểm tra thiết bị
+
+idevice_id -l
+# Phải in UDID (một dòng)
+
+## 3. Chạy capture + viewer
+
+cd linux-ios
+./capture_fa_logging.sh --bundle com.yourcompany.yourapp
+# --bundle = nhãn trên timeline (log FA thường không in bundle id trong dòng)
+
+# Nhiều máy:
+./capture_fa_logging.sh --udid <UDID> --bundle com.yourcompany.yourapp
+
+# Browser: http://127.0.0.1:8766/  (mặc định — Android dùng 8765)
+
+# Chỉ viewer:
+./start_fa_viewer.sh
+
+## 4. Nếu lỗi lockdown / syslog_relay
+
+sudo usermod -aG plugdev "$USER"
+# Đăng xuất / đăng nhập lại, hoặc:
+newgrp plugdev
+
+# Một số distro cần quyền lockdown (thử nếu idevicesyslog báo lỗi service):
+sudo chmod 755 /var/lib/lockdown 2>/dev/null || true
+
+Tháo USB, cắm lại, Trust lại trên iPhone, rồi:
+idevice_id -l
+./capture_fa_logging.sh --bundle com.yourcompany.yourapp

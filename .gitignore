@@ -7,6 +7,8 @@
 fa_logging_stream.jsonl
 fa_logging_results_adb.html
 fa_logging_results_adb.txt
+fa_logging_results_ios.html
+fa_logging_results_ios.txt
 *_test_export.html
 
 # Cấu hình bundle tracking sinh ra lúc chạy
