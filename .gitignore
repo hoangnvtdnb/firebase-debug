@@ -30,7 +30,11 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
-windows/include_event_param.txt
+# Cấu hình filter sinh ra khi viewer Lưu (windows/)
+windows/include_event.txt
 windows/exclude_event.txt
+windows/include_event_param.txt
 windows/exclude_event_param.txt
+windows/include_property.txt
+windows/exclude_property.txt
 windows/fa_filter_config.json
